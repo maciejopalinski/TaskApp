@@ -1,5 +1,8 @@
 package io.github.poprostumieciek.TaskApp;
 
+import java.io.InvalidClassException;
+import java.io.PrintWriter;
+import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.File;
@@ -56,12 +59,12 @@ public class TaskApp {
 
         @Override
         public String toString() {
-            if (isDone) return "- [x] " + text;
-            else return "- [ ] " + text;
+            if (isDone) return "[x] " + text + " (checked " + (9 - checksLeft) + " times)";
+            else return "[ ] " + text + " (checked " + (9 - checksLeft) + " times)";
         }
     }
 
-    public static class LinksTask implements Task {
+    public static class LinkTask implements Task {
 
         private final Runtime runtime = Runtime.getRuntime();
 
@@ -97,8 +100,8 @@ public class TaskApp {
         }
 
         public String toString() {
-            if (isDone) return "- [x] Open: " + link;
-            else return "- [ ] Open: " + link;
+            if (isDone) return "[x] Open: " + link;
+            else return "[ ] Open: " + link;
         }
 
         private void open() {
@@ -122,7 +125,7 @@ public class TaskApp {
 
                 if (line.contains("://")) {
                     // http://, https://, ftp://, file://
-                    LinksTask task = new LinksTask();
+                    LinkTask task = new LinkTask();
                     task.unserialize(line);
                     tasks.add(task);
                 }
@@ -144,6 +147,31 @@ public class TaskApp {
         return new ArrayList<>();
     }
 
+    public static void saveToFile(ArrayList<Task> tasks, String filename) {
+        try {
+            File file = new File(filename);
+            PrintWriter writer = new PrintWriter(file);
+
+/*
+            for (int i = 0; i < tasks.size(); i++) {
+                final Task task = tasks.get(i);
+                writer.println(task.serialize());
+            }
+
+            the same as
+*/
+
+            for (Task task : tasks) {
+                writer.println(task.serialize());
+            }
+
+            writer.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
 
         String filename;
@@ -158,11 +186,20 @@ public class TaskApp {
         ArrayList<Task> tasks = loadFromFile(filename);
 
         String command;
+        String command_args;
 
         boolean isExited = false;
         while (!isExited) {
             System.out.print("> ");
-            command = scanner.nextLine();
+
+//            expr: "a b cd".split(" ")
+//            contents: { "a", "b", "cd" }
+
+            String[] input = scanner.nextLine().split(" ", 2);
+            command = input[0];
+            command_args = input.length > 1 ? input[1] : "";
+
+//            System.out.printf("[DEBUG] command='%s', command_args='%s'\n", command, command_args);
 
             switch (command) {
                 case "exit":
@@ -171,11 +208,158 @@ public class TaskApp {
                     break;
 
                 case "list":
-                    for (Task task : tasks) {
-                        System.out.println(task.toString());
+                    for (int i = 0; i < tasks.size(); i++) {
+                        final Task task = tasks.get(i);
+                        System.out.printf("%3d. %s\n", i + 1, task.toString());
                     }
                     break;
+
+                case "add_text": {
+                    TextTask task = new TextTask();
+                    task.text = command_args;
+                    tasks.add(task);
+                    break;
+                }
+
+                case "add_link": {
+                    LinkTask task = new LinkTask();
+
+                    try {
+                        if (command_args.contains("://")) {
+                            task.link = command_args;
+                            tasks.add(task);
+                        }
+                        else {
+                            throw new ProtocolException("String that you provided is not a link!");
+                        }
+                    }
+                    catch (Exception e) {
+                        System.out.printf("[ERROR] %s\n", e.getMessage());
+                    }
+                    break;
+                }
+
+                case "remove_task": {
+                    try {
+                        int idx = Integer.parseUnsignedInt(command_args);
+                        tasks.remove(idx - 1);
+                        System.out.printf("[INFO] Successfully removed task #%d\n", idx);
+                    }
+                    catch (NumberFormatException e) {
+                        System.out.println("[ERROR] Provided argument is not a number!");
+                    }
+                    catch (IndexOutOfBoundsException e) {
+                        System.out.println("[ERROR] Index out of bounds!");
+                    }
+                    break;
+                }
+
+                case "edit_text_task": {
+                    try {
+//                        test this monstrosity
+                        String[] cas = command_args.split(" ", 2);
+                        String index = cas[0];
+                        String content = cas.length > 1 ? cas[1] : "";
+
+                        int idx = Integer.parseUnsignedInt(index);
+
+                        Task task = tasks.get(idx - 1);
+
+                        if (task instanceof TextTask) {
+                            ((TextTask) task).text = content;
+                        }
+                        else {
+                            throw new InvalidClassException("Invalid task type!");
+                        }
+
+                        System.out.printf("[INFO] Successfully edited TextTask #%d\n", idx);
+                    }
+                    catch (NumberFormatException e) {
+                        System.out.println("[ERROR] Provided argument is not a number!");
+                    }
+                    catch (IndexOutOfBoundsException e) {
+                        System.out.println("[ERROR] Index out of bounds!");
+                    }
+                    catch (Exception e) {
+                        System.out.printf("[ERROR] %s\n", e.getMessage());
+                    }
+                    break;
+                }
+
+                case "edit_link_task": {
+                    try {
+//                        test this monstrosity
+                        String[] cas = command_args.split(" ", 2);
+                        String index = cas[0];
+                        String content = cas.length > 1 ? cas[1] : "";
+
+                        int idx = Integer.parseUnsignedInt(index);
+
+                        Task task = tasks.get(idx - 1);
+
+                        if (task instanceof LinkTask) {
+                            if (content.contains("://")) {
+                                ((LinkTask) task).link = content;
+                            }
+                            else {
+                                throw new ProtocolException("String that you provided is not a link!");
+                            }
+                        }
+                        else {
+                            throw new InvalidClassException("Invalid task type!");
+                        }
+
+                        System.out.printf("[INFO] Successfully edited LinkTask #%d\n", idx);
+                    }
+                    catch (NumberFormatException e) {
+                        System.out.println("[ERROR] Provided argument is not a number!");
+                    }
+                    catch (IndexOutOfBoundsException e) {
+                        System.out.println("[ERROR] Index out of bounds!");
+                    }
+                    catch (Exception e) {
+                        System.out.printf("[ERROR] %s\n", e.getMessage());
+                    }
+                    break;
+                }
+
+                case "check": {
+                    try {
+                        int idx = Integer.parseUnsignedInt(command_args);
+                        tasks.get(idx - 1).check();
+                        System.out.printf("[INFO] Successfully checked task #%d\n", idx);
+                    }
+                    catch (NumberFormatException e) {
+                        System.out.println("[ERROR] Provided argument is not a number!");
+                    }
+                    catch (IndexOutOfBoundsException e) {
+                        System.out.println("[ERROR] Index out of bounds!");
+                    }
+                    break;
+                }
+
+                case "uncheck": {
+                    try {
+                        int idx = Integer.parseUnsignedInt(command_args);
+                        tasks.get(idx - 1).uncheck();
+                        System.out.printf("[INFO] Successfully unchecked task #%d\n", idx);
+                    }
+                    catch (NumberFormatException e) {
+                        System.out.println("[ERROR] Provided argument is not a number!");
+                    }
+                    catch (IndexOutOfBoundsException e) {
+                        System.out.println("[ERROR] Index out of bounds!");
+                    }
+                    break;
+                }
+
+                default: {
+                    System.out.printf("[ERROR] Invalid command '%s'!\n", command);
+                    break;
+                }
             }
+
+            saveToFile(tasks, filename);
         }
     }
 }
