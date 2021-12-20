@@ -1,4 +1,4 @@
-package io.github.poprostumieciek.TaskApp;
+package io.github.poprostumieciek.taskapp;
 
 import java.io.InvalidClassException;
 import java.io.PrintWriter;
