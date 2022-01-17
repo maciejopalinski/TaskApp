@@ -6,11 +6,13 @@ import java.util.ArrayList;
 
 import io.github.poprostumieciek.taskapp.tasks.Task;
 
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements TaskListener {
 
-    ArrayList<Task> tasks;
+    private ArrayList<Task> tasks;
+    private ArrayList<GUITask> guiTasks = new ArrayList<>();
 
-    JPanel tasks_panel;
+    private JPanel tasks_panel;
+    private JLabel info;
 
     public MainWindow(ArrayList<Task> tasks) {
 
@@ -23,36 +25,54 @@ public class MainWindow extends JFrame {
         this.setMinimumSize(new Dimension(800, 450));
         this.setLayout(new BorderLayout());
 
-        JPanel layout = new JPanel();
-        layout.setLayout(new GridLayout(1, 0));
-        this.add(layout, BorderLayout.NORTH);
+        JPanel navbar = new JPanel();
+        navbar.setLayout(new GridLayout(1, 0));
+        this.add(navbar, BorderLayout.NORTH);
 
         JButton btnAdd = new JButton("Add");
         JButton btnEdit = new JButton("Edit");
         JButton btnDelete = new JButton("Delete");
-        layout.add(btnAdd);
-        layout.add(btnEdit);
-        layout.add(btnDelete);
+        navbar.add(btnAdd);
+        navbar.add(btnEdit);
+        navbar.add(btnDelete);
 
         tasks_panel = new JPanel();
         tasks_panel.setLayout(new BoxLayout(tasks_panel, BoxLayout.PAGE_AXIS));
-        update();
 
         JScrollPane tasks_scroll = new JScrollPane(tasks_panel);
         this.add(tasks_scroll, BorderLayout.CENTER);
 
-        JLabel info = new JLabel("Loading...");
+        info = new JLabel();
         this.add(info, BorderLayout.SOUTH);
+
+        update();
     }
 
     void update() {
         tasks_panel.removeAll();
+        guiTasks.clear();
 
+        int idx = 0;
         for (Task task : tasks) {
-            GUITask guiTask = new GUITask(task);
+            GUITask guiTask = new GUITask(task, idx, this);
             guiTask.setAlignmentX(0);
 
+            guiTasks.add(guiTask);
             tasks_panel.add(guiTask);
+
+            idx++;
         }
+
+        String info_text = guiTasks.size() + " tasks";
+        info.setText(info_text);
+    }
+
+    @Override
+    public void onTaskSelected(int idx) {
+        for (GUITask guiTask : guiTasks) {
+            guiTask.setSelected(false);
+        }
+
+        guiTasks.get(idx).setSelected(true);
     }
 }
