@@ -4,6 +4,8 @@ import io.github.poprostumieciek.taskapp.gui.MainWindow;
 import io.github.poprostumieciek.taskapp.tasks.Task;
 
 import java.util.ArrayList;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 public class TaskAppGUI {
 
@@ -21,5 +23,36 @@ public class TaskAppGUI {
 
         MainWindow window = new MainWindow(tasks);
         window.setVisible(true);
+
+        window.addWindowListener(new WindowListener() {
+            @Override
+            public void windowActivated(WindowEvent e) {
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                Utils.saveToFile(tasks, filename);
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e) {
+            }
+
+            @Override
+            public void windowOpened(WindowEvent e) {
+            }
+        });
     }
 }
