@@ -18,7 +18,7 @@ public class Utils {
 
             ArrayList<Task> tasks = new ArrayList<>();
 
-            while(scanner.hasNextLine()) {
+            while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
 
                 if (line.contains("://")) {
@@ -26,8 +26,7 @@ public class Utils {
                     LinkTask task = new LinkTask();
                     task.unserialize(line);
                     tasks.add(task);
-                }
-                else {
+                } else {
                     // "hello world"
                     TextTask task = new TextTask();
                     task.unserialize(line);
@@ -37,8 +36,7 @@ public class Utils {
 
             scanner.close();
             return tasks;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -55,8 +53,7 @@ public class Utils {
             }
 
             writer.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
