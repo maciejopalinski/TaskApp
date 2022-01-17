@@ -56,8 +56,12 @@ public class LinkTask implements Task {
     private void open() {
         try {
             runtime.exec("rundll32 link.dll, FileProtocolHandler " + link);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception unused) {
+        }
+
+        try {
+            runtime.exec("xdg-open " + link);
+        } catch (Exception unused) {
         }
     }
 }
