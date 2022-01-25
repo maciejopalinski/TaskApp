@@ -2,6 +2,7 @@ package io.github.poprostumieciek.taskapp.gui;
 
 import java.awt.*;
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
 import io.github.poprostumieciek.taskapp.tasks.Task;
@@ -13,6 +14,8 @@ public class MainWindow extends JFrame implements TaskListener {
 
     private JPanel tasks_panel;
     private JLabel info;
+
+    private int selectedTaskIndex = -1;
 
     public MainWindow(ArrayList<Task> tasks) {
 
@@ -35,6 +38,7 @@ public class MainWindow extends JFrame implements TaskListener {
         navbar.add(btnAdd);
         navbar.add(btnEdit);
         navbar.add(btnDelete);
+        btnDelete.addActionListener(this::deleteTaskClicked);
 
         tasks_panel = new JPanel();
         tasks_panel.setLayout(new BoxLayout(tasks_panel, BoxLayout.PAGE_AXIS));
@@ -65,6 +69,7 @@ public class MainWindow extends JFrame implements TaskListener {
 
         String info_text = guiTasks.size() + " tasks";
         info.setText(info_text);
+        SwingUtilities.updateComponentTreeUI(this);
     }
 
     @Override
@@ -72,7 +77,14 @@ public class MainWindow extends JFrame implements TaskListener {
         for (GUITask guiTask : guiTasks) {
             guiTask.setSelected(false);
         }
-
+        selectedTaskIndex = idx;
         guiTasks.get(idx).setSelected(true);
+    }
+
+    private void deleteTaskClicked(ActionEvent e){
+        if (selectedTaskIndex != -1){
+            tasks.remove(selectedTaskIndex);
+            update();
+        }
     }
 }
