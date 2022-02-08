@@ -38,6 +38,7 @@ public class MainWindow extends JFrame implements TaskListener {
         navbar.add(btnAdd);
         navbar.add(btnEdit);
         navbar.add(btnDelete);
+        btnAdd.addActionListener(this::addTaskClicked);
         btnDelete.addActionListener(this::deleteTaskClicked);
 
         tasks_panel = new JPanel();
@@ -86,5 +87,9 @@ public class MainWindow extends JFrame implements TaskListener {
             tasks.remove(selectedTaskIndex);
             update();
         }
+    }
+
+    private void addTaskClicked(ActionEvent e){
+        new AddTaskDialog(this);
     }
 }
