@@ -34,6 +34,8 @@ public class AddTaskDialog extends JDialog {
         text_task_button.setAlignmentX(Component.LEFT_ALIGNMENT);
         link_task_button.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        text_task_button.setSelected(true);
+
         radioButtonGroup.add(text_task_button);
         radioButtonGroup.add(link_task_button);
 
