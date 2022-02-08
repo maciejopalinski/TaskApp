@@ -1,10 +1,15 @@
 package io.github.poprostumieciek.taskapp.gui;
 
+import io.github.poprostumieciek.taskapp.tasks.LinkTask;
+import io.github.poprostumieciek.taskapp.tasks.TextTask;
+
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class AddTaskDialog extends JDialog {
+public class AddTaskDialog extends JDialog implements DocumentListener {
 
     private JLabel label;
     private JRadioButton text_task_button;
@@ -13,10 +18,12 @@ public class AddTaskDialog extends JDialog {
     private JPanel button_bar;
     private JButton add_button;
     private JButton cancel_button;
+    private MainWindow owner;
 
-    public AddTaskDialog (JFrame owner){
+    public AddTaskDialog (MainWindow owner){
         super(owner, "Add new task", ModalityType.APPLICATION_MODAL);
         setLocationRelativeTo(owner);
+        this.owner = owner;
         JPanel margin = new JPanel();
         margin.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
@@ -36,6 +43,9 @@ public class AddTaskDialog extends JDialog {
 
         text_task_button.setSelected(true);
 
+        text_task_button.addActionListener(this::taskTypeChanged);
+        link_task_button.addActionListener(this::taskTypeChanged);
+
         radioButtonGroup.add(text_task_button);
         radioButtonGroup.add(link_task_button);
 
@@ -44,6 +54,7 @@ public class AddTaskDialog extends JDialog {
 
         text_field = new JTextField();
         text_field.setAlignmentX(Component.LEFT_ALIGNMENT);
+        text_field.getDocument().addDocumentListener(this);
         margin.add(text_field);
 
         button_bar = new JPanel();
@@ -54,6 +65,8 @@ public class AddTaskDialog extends JDialog {
 
         add_button.addActionListener(this::addClicked);
         cancel_button.addActionListener(this::cancelClicked);
+
+        add_button.setEnabled(false);
 
         button_bar.add(add_button);
         button_bar.add(cancel_button);
@@ -67,8 +80,38 @@ public class AddTaskDialog extends JDialog {
         setVisible(true);
     }
 
-    private void addClicked(ActionEvent e){
+    public void insertUpdate(DocumentEvent e){
+        textChanged();
+    }
+    public void removeUpdate(DocumentEvent e){
+        textChanged();
+    }
+    public void changedUpdate(DocumentEvent e){}
 
+    private void taskTypeChanged(ActionEvent e){
+        textChanged();
+    }
+
+    private void textChanged(){
+        String text = text_field.getText();
+        if (text.isEmpty() || (link_task_button.isSelected() && !text.contains("://"))) {
+            add_button.setEnabled(false);
+        } else{
+            add_button.setEnabled(true);
+        }
+    }
+
+    private void addClicked(ActionEvent e){
+        if (text_task_button.isSelected()){
+            TextTask task = new TextTask();
+            task.setText(text_field.getText());
+            owner.add_task(task);
+        } else{
+            LinkTask task = new LinkTask();
+            task.setLink(text_field.getText());
+            owner.add_task(task);
+        }
+        dispose();
     }
 
     private void cancelClicked(ActionEvent e){
