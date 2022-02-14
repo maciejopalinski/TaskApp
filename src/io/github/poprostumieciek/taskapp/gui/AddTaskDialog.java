@@ -20,7 +20,7 @@ public class AddTaskDialog extends JDialog implements DocumentListener {
     private JButton cancel_button;
     private MainWindow owner;
 
-    public AddTaskDialog (MainWindow owner){
+    public AddTaskDialog(MainWindow owner) {
         super(owner, "Add new task", ModalityType.APPLICATION_MODAL);
         setLocationRelativeTo(owner);
         this.owner = owner;
@@ -80,33 +80,33 @@ public class AddTaskDialog extends JDialog implements DocumentListener {
         setVisible(true);
     }
 
-    public void insertUpdate(DocumentEvent e){
+    public void insertUpdate(DocumentEvent e) {
         textChanged();
     }
-    public void removeUpdate(DocumentEvent e){
+    public void removeUpdate(DocumentEvent e) {
         textChanged();
     }
-    public void changedUpdate(DocumentEvent e){}
+    public void changedUpdate(DocumentEvent e) {}
 
-    private void taskTypeChanged(ActionEvent e){
+    private void taskTypeChanged(ActionEvent e) {
         textChanged();
     }
 
-    private void textChanged(){
+    private void textChanged() {
         String text = text_field.getText();
         if (text.isEmpty() || (link_task_button.isSelected() && !text.contains("://"))) {
             add_button.setEnabled(false);
-        } else{
+        } else {
             add_button.setEnabled(true);
         }
     }
 
-    private void addClicked(ActionEvent e){
-        if (text_task_button.isSelected()){
+    private void addClicked(ActionEvent e) {
+        if (text_task_button.isSelected()) {
             TextTask task = new TextTask();
             task.setText(text_field.getText());
             owner.add_task(task);
-        } else{
+        } else {
             LinkTask task = new LinkTask();
             task.setLink(text_field.getText());
             owner.add_task(task);
@@ -114,7 +114,7 @@ public class AddTaskDialog extends JDialog implements DocumentListener {
         dispose();
     }
 
-    private void cancelClicked(ActionEvent e){
+    private void cancelClicked(ActionEvent e) {
         dispose();
     }
 }
