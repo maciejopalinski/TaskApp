@@ -13,8 +13,18 @@ public class LinkTask implements Task {
         this.link = link;
     }
 
-    String getLink() {
+    public String getLink() {
         return link;
+    }
+
+    @Override
+    public void setContent(String content) {
+        setLink(content);
+    }
+
+    @Override
+    public String getContent() {
+        return getLink();
     }
 
     @Override

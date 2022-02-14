@@ -10,8 +10,18 @@ public class TextTask implements Task {
         this.text = text;
     }
 
-    String getText() {
+    public String getText() {
         return text;
+    }
+
+    @Override
+    public void setContent(String content) {
+        setText(content);
+    }
+
+    @Override
+    public String getContent() {
+        return getText();
     }
 
     @Override

@@ -9,4 +9,7 @@ public interface Task {
     boolean isDone();
 
     String toString();
+
+    void setContent(String content);
+    String getContent();
 }
